@@ -15,13 +15,15 @@ int main(int argc, const char * argv[])
 {
 
     @autoreleasepool {
-                
-        if (argc != 2) {
-            printf("Error! Expected a file to parse.\nUsage: %s <javascript file to parse>\n", argv[0]);
-            return 1;
-        }
         
-        NSString *filename = @( argv[1] );
+        NSString *filename;
+        if (argc != 2) {
+            filename = @"/Users/you/dev/JSParser/JSParser/screenshot.js";
+            //printf("Error! Expected a file to parse.\nUsage: %s <javascript file to parse>\n", argv[0]);
+            //return 1;
+        } else {
+            filename = @( argv[1] );
+        }
         NSString *string = [[NSString alloc] initWithContentsOfFile:filename encoding:NSUTF8StringEncoding error:nil];
         
         STWJSParser *js = [[STWJSParser alloc] init];
