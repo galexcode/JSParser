@@ -10,6 +10,7 @@
 		896D85651647870200D28985 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 896D85641647870200D28985 /* Foundation.framework */; };
 		896D85681647870200D28985 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 896D85671647870200D28985 /* main.m */; };
 		896D856C1647870200D28985 /* JSParser.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 896D856B1647870200D28985 /* JSParser.1 */; };
+		896D85741647873B00D28985 /* STWJSParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 896D85731647873B00D28985 /* STWJSParser.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,8 @@
 		896D85671647870200D28985 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		896D856A1647870200D28985 /* JSParser-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JSParser-Prefix.pch"; sourceTree = "<group>"; };
 		896D856B1647870200D28985 /* JSParser.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = JSParser.1; sourceTree = "<group>"; };
+		896D85721647873B00D28985 /* STWJSParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STWJSParser.h; sourceTree = "<group>"; };
+		896D85731647873B00D28985 /* STWJSParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STWJSParser.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +78,8 @@
 			children = (
 				896D85671647870200D28985 /* main.m */,
 				896D856B1647870200D28985 /* JSParser.1 */,
+				896D85721647873B00D28985 /* STWJSParser.h */,
+				896D85731647873B00D28985 /* STWJSParser.m */,
 				896D85691647870200D28985 /* Supporting Files */,
 			);
 			path = JSParser;
@@ -140,6 +145,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				896D85681647870200D28985 /* main.m in Sources */,
+				896D85741647873B00D28985 /* STWJSParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
