@@ -11,6 +11,7 @@
 @interface STWJSParser : NSObject
 {
     NSInteger scope;
+    NSMutableArray *minScopeLevels;
     NSMutableDictionary *variables;
 }
 

@@ -37,6 +37,8 @@ BOOL stringContainsSubstring(NSString *str, NSString *substring)
     BOOL isComment = NO;
     BOOL isSingleLineComment = NO;
     
+    minScopeLevels = [[NSMutableArray alloc] init];;
+    
     NSRange wordRange, stringRange, commentRange;
     
     NSRange instructionRange = NSMakeRange(0, NSNotFound);
@@ -88,7 +90,15 @@ BOOL stringContainsSubstring(NSString *str, NSString *substring)
             commentRange.location = i;
         }
         
-        if ((!isEscaped && !isString && !isComment) && (c == ';' || c == '\n')) {
+        if ((!isEscaped && !isString && !isComment) && (c == ';' || c == '\n' || c == '{' || c == '}')) {
+            if (c == '{')
+                scope++;
+            else if (c == '}') {
+                scope--;
+                if (scope > [[minScopeLevels lastObject] integerValue])
+                    [minScopeLevels removeLastObject];
+                [variables removeObjectForKey:@( scope + 1 )];
+            }
             instructionRange.length = (i - instructionRange.location) + 1;
             if (instructionRange.length != 1) {
                 NSString *instruct = [str substringWithRange:instructionRange];
@@ -96,14 +106,6 @@ BOOL stringContainsSubstring(NSString *str, NSString *substring)
                 [self examineInstruction:[self removeMultilineCommentFromString:instruct]];
                 instructionRange.location = i+1;
             }
-        }
-        
-        if ((!isEscaped && !isString && !isComment) && (c == '{')) {
-            scope++;
-        }
-        if ((!isEscaped && !isString && !isComment) && (c == '}')) {
-            scope--;
-            [variables removeObjectForKey:@( scope + 1 )];
         }
         
         // End of a comment
@@ -160,10 +162,71 @@ BOOL stringContainsSubstring(NSString *str, NSString *substring)
 {
     if (instruction.length < 2 || [instruction hasPrefix:@"//"]) // because apparently, my comment catching algorithm is bad, mkay.
         return;
-    if (stringContainsSubstring(instruction, @"var") || stringContainsSubstring(instruction, @"function")) {
+    if (stringContainsSubstring(instruction, @"var")) {
         printf("Instruction contains new variables! Instruction: \"%s\"", [instruction UTF8String]);
-    } //else
+        [self newVariables:instruction scope:scope];
+    } else if (stringContainsSubstring(instruction, @"function")) {
+        [self newVariables:instruction scope:scope+1];
+        [minScopeLevels addObject:@(scope+1)];
+    }
+    //else
      //   printf("Instruction is: \"%s\"\n", [instruction UTF8String]);
+}
+
+-(void)newVariables:(NSString *)instruction scope:(NSInteger)currentScope
+{
+    if (stringContainsSubstring(instruction, @"function")) {
+        NSRange foo = [instruction rangeOfString:@"function"];
+
+        NSString *blargle = [instruction substringFromIndex:foo.location + foo.length];
+        
+        foo = [blargle rangeOfString:@"("];
+        if (foo.location == NSNotFound)
+            return;
+        
+        NSUInteger ind = foo.location+foo.length;
+        if (ind >= [blargle length])
+            return;
+        NSRange bar = NSMakeRange(foo.location+1, 0);
+        foo = [blargle rangeOfString:@")"];
+        bar.length = foo.location -bar.location;
+        NSString *blah = [blargle substringWithRange:bar];
+        
+        NSArray *vars = [blah componentsSeparatedByString:@","];
+        
+        NSMutableArray *toAdd = [[NSMutableArray alloc] init];
+        for (NSString *s in vars) {
+            NSString *baz = [[s componentsSeparatedByString:@"="] objectAtIndex:0];
+            [toAdd addObject:[self stringByStrippingWhitespaceFromEnds:baz]];
+        }
+        
+        NSLog(@"new function! %@", toAdd);
+                
+        [variables setObject:toAdd forKey:@( currentScope )];
+    } else {
+        // var.
+        NSRange foo = [instruction rangeOfString:@"var"];
+        
+        NSString *blah = [instruction substringFromIndex:foo.location + foo.length];
+        
+        if (stringContainsSubstring(blah, @";")) { // this would be at the end.
+            blah = [blah substringToIndex:[blah length] - 2];
+        }
+        
+        NSArray *vars;
+        if (stringContainsSubstring(blah, @","))
+            vars = [blah componentsSeparatedByString:@","];
+        
+        NSMutableArray *toAdd = [[NSMutableArray alloc] init];
+        for (NSString *s in vars) {
+            NSString *baz = [[s componentsSeparatedByString:@"="] objectAtIndex:0];
+            [toAdd addObject:[self stringByStrippingWhitespaceFromEnds:baz]];
+        }
+        
+        NSLog(@"new vars! %@", toAdd);
+        [variables setObject:toAdd forKey:@( currentScope )];
+
+    }
 }
 
 -(int)getIndentLevel
