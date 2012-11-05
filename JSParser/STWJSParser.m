@@ -163,7 +163,6 @@ BOOL stringContainsSubstring(NSString *str, NSString *substring)
     if (instruction.length < 2 || [instruction hasPrefix:@"//"]) // because apparently, my comment catching algorithm is bad, mkay.
         return;
     if (stringContainsSubstring(instruction, @"var")) {
-        printf("Instruction contains new variables! Instruction: \"%s\"", [instruction UTF8String]);
         [self newVariables:instruction scope:scope];
     } else if (stringContainsSubstring(instruction, @"function")) {
         [self newVariables:instruction scope:scope+1];
@@ -175,6 +174,8 @@ BOOL stringContainsSubstring(NSString *str, NSString *substring)
 
 -(void)newVariables:(NSString *)instruction scope:(NSInteger)currentScope
 {
+    if (![instruction isKindOfClass:[NSString class]])
+        return; // this should not happen...
     if (stringContainsSubstring(instruction, @"function")) {
         NSRange foo = [instruction rangeOfString:@"function"];
 
@@ -184,12 +185,21 @@ BOOL stringContainsSubstring(NSString *str, NSString *substring)
         if (foo.location == NSNotFound)
             return;
         
+        // checking that it's an actual declaration of a function...
+        NSString *qux = [blargle substringToIndex:foo.location];
+        for (NSUInteger i = 0; i < [qux length]; i++) {
+            NSLog(@"%@", qux);
+            unichar c = [qux characterAtIndex:i];
+            if (c == '"' || c == '\'')
+                return;
+        }
+        
         NSUInteger ind = foo.location+foo.length;
         if (ind >= [blargle length])
             return;
         NSRange bar = NSMakeRange(foo.location+1, 0);
         foo = [blargle rangeOfString:@")"];
-        bar.length = foo.location -bar.location;
+        bar.length = foo.location - bar.location;
         NSString *blah = [blargle substringWithRange:bar];
         
         NSArray *vars = [blah componentsSeparatedByString:@","];
@@ -213,9 +223,7 @@ BOOL stringContainsSubstring(NSString *str, NSString *substring)
             blah = [blah substringToIndex:[blah length] - 2];
         }
         
-        NSArray *vars;
-        if (stringContainsSubstring(blah, @","))
-            vars = [blah componentsSeparatedByString:@","];
+        NSArray *vars = [blah componentsSeparatedByString:@","];
         
         NSMutableArray *toAdd = [[NSMutableArray alloc] init];
         for (NSString *s in vars) {
